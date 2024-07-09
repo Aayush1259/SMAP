@@ -76,29 +76,22 @@
 
         .avatar {
             width: 45px;
-            /* Adjust size as needed */
             height: 45px;
-            /* Adjust size as needed */
             border-radius: 50%;
             background-color: #02a350;
-            /* You can change the background color */
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 28px;
-            /* Adjust font size as needed */
             font-weight: 500;
             color: #fff;
-            /* You can change the text color */
             margin-right: 5px;
-            /* Adjust margin as needed */
         }
 
         .random-color-box {
             width: 200px;
             height: 200px;
             background-color: #00c760;
-            /* Initial color */
         }
 
         .submit2 {
@@ -113,7 +106,6 @@
             font-weight: 650;
             padding: 10px 10px 10px 10px;
             text-decoration: none;
-            /* Add this line to remove underline */
         }
     </style>
 
@@ -206,7 +198,6 @@
                 </span>
                 <div class="data_text">
                     <span class="name" id="username"></span>
-                    <!--<span class="email">vraj.patel2003v@gmail.com</span>-->
                 </div>
             </div>
         </div>
@@ -219,7 +210,6 @@
                 <a href="" target="_blank" hidden></a>
                 <input type="text" placeholder="Search for Stocks..." class="bar search_box">
                 <div class="autocom-box">
-                    <!-- here list are inserted from javascript -->
                 </div>
                 <div class="icon"><i class="fas fa-search"></i></div>
             </div>
@@ -279,7 +269,6 @@
                 border-collapse: collapse;
                 margin-left: 450px;
                 color: #fff;
-                /* Aligning table to center */
             }
 
             table,
@@ -294,16 +283,11 @@
                 background-color: transparent;
             }
 
-            /* Adding styles for the message */
             .message {
                 margin: 0 auto;
-                /* Centering the message */
                 text-align: center;
-                /* Centering the text */
                 font-size: 20px;
-                /* Changing font size */
                 color: #00c760;
-                /* Changing font color */
                 padding-left: 170px;
             }
 
@@ -316,22 +300,22 @@
     <body>
 
         <?php
-        require './vendor/autoload.php'; // Ensure you have the MongoDB PHP library installed
+        require './vendor/autoload.php';
 
-        // MongoDB connection
-        $client = new MongoDB\Client("mongodb://localhost:27017");
+        use MongoDB\Client;
+
+        $uri = getenv('MONGODB_URI');
+
+        $client = new Client($uri);
         $db = $client->loginpage;
         $loginCollection = $db->login;
         $watchlistCollection = $db->watchlist;
 
-        // Query to fetch the last logged in user
         $user = $loginCollection->findOne([], ['sort' => ['_id' => -1]]);
 
         if ($user) {
-            // Fetch the username of the last logged in user
             $last_logged_in_user = $user["name"];
 
-            // Defining an associative array for stock names and their full names
             $stock_names_full_names = array(
                 "AAPL" => "Apple Inc.",
                 "GOOGL" => "Google Inc.",
@@ -343,44 +327,36 @@
                 "INFY.NS" => "Infosys Ltd.",
                 "SBIN.NS" => "State Bank of India",
                 "HDFCBANK.NS" => "HDFC Bank Ltd."
-                // Add more stocks and their full names as needed
             );
 
-            // Query to fetch documents from the watchlist collection for the last logged in user
             $watchlist = $watchlistCollection->find(['name' => $last_logged_in_user]);
 
             if ($watchlist->isDead() == false) {
-                // Display the data in a tabular format using HTML
                 echo "<form method='post' action='./php/remove_from_watchlist.php'>";
                 echo "<table>
-            <tr>
-                <th>S. No.</th>
-                <th>Logo</th>
-                <th>Symbol</th>
-                <th>Stock Name</th>
-                <th>Select</th>
-            </tr>";
+        <tr>
+            <th>S. No.</th>
+            <th>Logo</th>
+            <th>Symbol</th>
+            <th>Stock Name</th>
+            <th>Select</th>
+        </tr>";
 
-                // Variable to keep track of serial number
                 $serial_number = 1;
 
                 foreach ($watchlist as $row_watchlist) {
-                    // Get the full name from the associative array
                     $full_name = isset($stock_names_full_names[$row_watchlist["stock_name"]]) ? $stock_names_full_names[$row_watchlist["stock_name"]] : "Unknown";
 
                     echo "<tr>";
                     echo "<td>" . $serial_number . "</td>";
-                    // Display image
-                    $image_path = "HOME/" . strtolower($row_watchlist["stock_name"]) . ".png"; // Assuming the image names are in lowercase
+                    $image_path = "HOME/" . strtolower($row_watchlist["stock_name"]) . ".png";
                     echo "<td><img src='$image_path' alt='$full_name'></td>";
                     echo "<td>" . $row_watchlist["stock_name"] . "</td>";
                     echo "<td>" . $full_name . "</td>";
-                    // Add checkbox column
                     echo "<td><input type='checkbox' name='selected[]' value='" . $row_watchlist["stock_name"] . "'></td>";
 
                     echo "</tr>";
 
-                    // Increment serial number
                     $serial_number++;
                 }
                 echo "</table>";
@@ -392,7 +368,6 @@
                 echo "<br><br>";
                 echo "<br><br>";
             } else {
-                // Display message if no data found in watchlist for the user
                 echo "<p class='message'>There are currently no Stocks in your Watchlist!</p>";
                 echo "<br>";
                 echo "<p class='message'>Please Redirect to the Home Page and Add Stocks to your Watchlist.</p>";
@@ -402,13 +377,12 @@
                 echo "<br><br>";
                 echo "<br><br>";
                 echo "<br><br>";
-                echo "<br><br>";
             }
         } else {
-            // Display message if no users logged in
             echo "<p class='message'>No users logged in.</p>";
         }
         ?>
+
     </body>
 
     </html>
@@ -421,41 +395,31 @@
     </footer>
 
     <script>
-        // Function to format the user's name
         function formatUserName(name) {
-            // Split the name into an array of words
             var words = name.toLowerCase().split(' ');
-            // Capitalize the first letter of each word
             for (var i = 0; i < words.length; i++) {
                 words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
             }
-            // Join the words back into a single string and return
             return words.join(' ');
         }
 
-        // Function to fetch user information from the server
         function fetchUserInfo() {
-            // Make an AJAX request to fetch user information
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', './php/get_user_info.php', true); // Assuming your PHP file to retrieve user info is named get_user_info.php
+            xhr.open('GET', './php/get_user_info.php', true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var userInfo = JSON.parse(xhr.responseText);
-                    // Format the user's name
                     var formattedName = formatUserName(userInfo.name);
-                    // Update the HTML content with the formatted name
                     document.getElementById('username').innerText = formattedName;
-                    // Create and display the avatar using the initial of the user's name
                     var avatar = document.createElement('div');
                     avatar.className = 'avatar';
-                    avatar.innerText = formattedName.charAt(0).toUpperCase(); // Display the initial of the user's name
+                    avatar.innerText = formattedName.charAt(0).toUpperCase();
                     document.getElementById('avatarContainer').appendChild(avatar);
                 }
             };
             xhr.send();
         }
 
-        // Call the function when the page loads
         window.onload = fetchUserInfo;
     </script>
 
