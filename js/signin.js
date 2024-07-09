@@ -9,7 +9,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     };
 
     try {
-        const response = await fetch("https://your-vercel-deployment-url/api/login", {
+        const response = await fetch("https://finflexx.vercel.app//api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -52,7 +52,7 @@ document.getElementById("signinForm").addEventListener("submit", async function 
     };
 
     try {
-        const response = await fetch("https://your-vercel-deployment-url/api/signin", {
+        const response = await fetch("https://finflexx.vercel.app/api/signin", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
