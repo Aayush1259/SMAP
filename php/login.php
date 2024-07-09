@@ -1,47 +1,30 @@
 <?php
-// Include MongoDB library
+
 require '../vendor/autoload.php';
 
 use MongoDB\Client;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Connect to MongoDB
-    $client = new Client("mongodb://localhost:27017");
+    $uri = getenv('MONGODB_URI');
 
-    // Select the database
+    $client = new Client($uri);
+
     $database = $client->loginpage;
 
-    // Select the collection
     $collection = $database->signup;
 
-    // Find the user
-    $user = $collection->findOne(['name' => $name, 'password' => $password]);
+    $insertResult = $collection->insertOne([
+        'name' => $name,
+        'email' => $email,
+        'password' => $password
+    ]);
 
-    if ($user) {
-        $email = $user['email'];
-
-        // Insert login details
-        $loginCollection = $database->login;
-        $loginCollection->insertOne([
-            'name' => $name,
-            'password' => $password,
-            'email' => $email
-        ]);
-
-        // Redirect to index2.html upon successful login
-        header("Location: ../index2.html");
-        exit(); // Stop further execution
-    } else {
-        // Display alert message using JavaScript
-        echo '<script type="text/javascript">
-                alert("User not registered. Please sign up first.");
-                window.location.href = "../signin.html";
-                </script>';
-        exit(); // Stop further execution
-    }
+    header("Location: ../signin.html");
+    exit();
 } else {
     echo "Invalid request method!";
 }
