@@ -1,47 +1,73 @@
 <?php
-// Include Composer's autoloader
+
 require '../vendor/autoload.php';
 
 use MongoDB\Client;
 
-// Check if form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Establish MongoDB connection
-    $client = new Client("mongodb://localhost:27017");
-    $db = $client->loginpage;
-    $watchlistCollection = $db->watchlist;
-    $loginCollection = $db->login;
+$uri = getenv('MONGODB_URI');
 
-    // Process selected images
-    if (isset($_POST['images'])) {
-        // Retrieve the last entry from the login collection to get the username of the logged-in user
-        $lastLogin = $loginCollection->findOne([], ['sort' => ['_id' => -1]]);
-        $username = $lastLogin ? $lastLogin['name'] : '';
+$client = new Client($uri);
+$db = $client->loginpage;
+$loginCollection = $db->login;
+$watchlistCollection = $db->watchlist;
 
-        foreach ($_POST['images'] as $stock_name) {
-            // Check if the stock_name already exists in the watchlist collection for the user
-            $existingEntry = $watchlistCollection->findOne(['stock_name' => $stock_name, 'name' => $username]);
+$lastLogin = $loginCollection->findOne([], ['sort' => ['_id' => -1]]);
 
-            if (!$existingEntry) {
-                // Insert stock name and username into the database
-                $insertResult = $watchlistCollection->insertOne([
-                    'stock_name' => $stock_name,
-                    'name' => $username
-                ]);
+if ($lastLogin) {
+    $last_logged_in_user = $lastLogin['name'];
 
-                if ($insertResult->getInsertedCount() > 0) {
-                    // Insertion successful
-                } else {
-                    echo "Error: Unable to insert $stock_name into the watchlist.<br>";
-                }
-            } else {
-                echo "Stock '$stock_name' is already in the watchlist for user '$username'.<br>";
-            }
+    $stock_names_full_names = array(
+        "AAPL" => "Apple Inc.",
+        "GOOGL" => "Google Inc.",
+        "MSFT" => "Microsoft Corporation",
+        "TSLA" => "Tesla Inc.",
+        "AMZN" => "Amazon Inc.",
+        "RELIANCE.NS" => "Reliance Industries Ltd.",
+        "TCS.NS" => "Tata Consulting Services",
+        "INFY.NS" => "Infosys Ltd.",
+        "SBIN.NS" => "State Bank of India",
+        "HDFCBANK.NS" => "HDFC Bank Ltd."
+    );
+
+    $watchlistCursor = $watchlistCollection->find(['name' => $last_logged_in_user]);
+
+    if ($watchlistCursor->isDead()) {
+        echo "<p class='message'>There are currently no Stocks in your Watchlist!</p>";
+        echo "<br>";
+        echo "<p class='message'>Please Redirect to the Home Page and Add Stocks to your Watchlist.</p>";
+    } else {
+        echo "<form method='post' action='./php/remove_from_watchlist.php'>";
+        echo "<table>
+            <tr>
+                <th>S. No.</th>
+                <th>Logo</th>
+                <th>Symbol</th>
+                <th>Stock Name</th>
+                <th>Select</th>
+            </tr>";
+
+        $serial_number = 1;
+        foreach ($watchlistCursor as $row_watchlist) {
+            $stock_name = $row_watchlist['stock_name'];
+            $full_name = isset($stock_names_full_names[$stock_name]) ? $stock_names_full_names[$stock_name] : "Unknown";
+
+            echo "<tr>";
+            echo "<td>" . $serial_number . "</td>";
+            $image_path = "HOME/" . strtolower($stock_name) . ".png";
+            echo "<td><img src='$image_path' alt='$full_name'></td>";
+            echo "<td>" . $stock_name . "</td>";
+            echo "<td>" . $full_name . "</td>";
+            echo "<td><input type='checkbox' name='selected[]' value='" . $stock_name . "'></td>";
+            echo "</tr>";
+
+            $serial_number++;
         }
+        echo "</table>";
+        echo "<br><br>";
+        echo "<input type='submit' value='Remove from Watchlist' class='submit2'>";
+        echo "</form>";
     }
-
-    // Refresh the current page
-    header("Location: ../watchlist.php");
-    exit();
+} else {
+    echo "<p class='message'>No users logged in.</p>";
 }
 ?>
