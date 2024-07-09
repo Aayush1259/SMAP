@@ -76,29 +76,22 @@
 
         .avatar {
             width: 45px;
-            /* Adjust size as needed */
             height: 45px;
-            /* Adjust size as needed */
             border-radius: 50%;
             background-color: #02a350;
-            /* You can change the background color */
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 28px;
-            /* Adjust font size as needed */
             font-weight: 500;
             color: #fff;
-            /* You can change the text color */
             margin-right: 5px;
-            /* Adjust margin as needed */
         }
 
         .random-color-box {
             width: 200px;
             height: 200px;
             background-color: #00c760;
-            /* Initial color */
         }
     </style>
 
@@ -203,7 +196,6 @@
                 <a href="" target="_blank" hidden></a>
                 <input type="text" placeholder="Search for Stocks..." class="bar search_box">
                 <div class="autocom-box">
-                    <!-- here list are inserted from javascript -->
                 </div>
                 <div class="icon"><i class="fas fa-search"></i></div>
             </div>
@@ -215,38 +207,36 @@
         <!-- TradingView Widget BEGIN -->
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript"
-                src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-                    {
-                        "symbols": [
-                            {
-                                "description": "",
-                                "proName": "NASDAQ:TSLA"
-                            },
-                            {
-                                "description": "",
-                                "proName": "NASDAQ:AAPL"
-                            },
-                            {
-                                "description": "",
-                                "proName": "NASDAQ:AMZN"
-                            },
-                            {
-                                "description": "",
-                                "proName": "NASDAQ:GOOGL"
-                            },
-                            {
-                                "description": "",
-                                "proName": "NASDAQ:MSFT"
-                            }
-                        ],
-                            "showSymbolLogo": true,
-                                "isTransparent": false,
-                                    "displayMode": "adaptive",
-                                        "colorTheme": "dark",
-                                            "locale": "en"
-                    }
-                </script>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                {
+                    "symbols": [{
+                            "description": "",
+                            "proName": "NASDAQ:TSLA"
+                        },
+                        {
+                            "description": "",
+                            "proName": "NASDAQ:AAPL"
+                        },
+                        {
+                            "description": "",
+                            "proName": "NASDAQ:AMZN"
+                        },
+                        {
+                            "description": "",
+                            "proName": "NASDAQ:GOOGL"
+                        },
+                        {
+                            "description": "",
+                            "proName": "NASDAQ:MSFT"
+                        }
+                    ],
+                    "showSymbolLogo": true,
+                    "isTransparent": false,
+                    "displayMode": "adaptive",
+                    "colorTheme": "dark",
+                    "locale": "en"
+                }
+            </script>
         </div>
         <!-- TradingView Widget END -->
     </Section>
@@ -279,8 +269,6 @@
                 padding: 20px;
                 padding-right: 0px;
                 position: relative;
-                /* Added position relative */
-
             }
 
             #password {
@@ -293,7 +281,6 @@
                 font-family: "Poppins", sans-serif;
                 padding-right: 0px;
                 width: 300px;
-                /* Reset to default width */
             }
 
             #toggleButton {
@@ -310,11 +297,8 @@
                 color: #fff;
                 font-weight: 1000;
                 position: absolute;
-                /* Moved the text out of the box */
                 top: -60px;
-                /* Adjust vertical position */
                 left: 0%;
-                /* Center horizontally */
                 font-family: "Poppins", sans-serif;
             }
 
@@ -329,8 +313,6 @@
 
 
         <script>
-
-
             function togglePasswordVisibility() {
                 var passwordField = document.getElementById("password");
                 var button = document.getElementById("toggleButton");
@@ -347,11 +329,6 @@
             }
         </script>
 
-
-
-
-
-        <!-- Include Font Awesome for eye icons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     </head>
 
@@ -360,13 +337,15 @@
         <div class="details">
             <div class="user-info">
                 <?php
-                require './vendor/autoload.php'; // Ensure you have the MongoDB PHP library installed
+                require './vendor/autoload.php';
 
-                // Database connection
-                $client = new MongoDB\Client("mongodb://localhost:27017");
+                use MongoDB\Client;
+
+                $uri = getenv('MONGODB_URI');
+
+                $client = new Client($uri);
                 $collection = $client->loginpage->login;
 
-                // Retrieve the last entered user
                 $user = $collection->findOne([], ['sort' => ['_id' => -1]]);
 
                 if ($user) {
@@ -380,6 +359,23 @@
                     echo "No user found.";
                 }
                 ?>
+
+                <script>
+                    function togglePasswordVisibility() {
+                        var passwordField = document.getElementById('password');
+                        var toggleButton = document.getElementById('toggleButton');
+                        if (passwordField.type === 'password') {
+                            passwordField.type = 'text';
+                            toggleButton.classList.remove('fa-eye');
+                            toggleButton.classList.add('fa-eye-slash');
+                        } else {
+                            passwordField.type = 'password';
+                            toggleButton.classList.remove('fa-eye-slash');
+                            toggleButton.classList.add('fa-eye');
+                        }
+                    }
+                </script>
+
             </div>
         </div>
 
@@ -394,43 +390,32 @@
             2024 FinFlexx</p>
     </footer>
 
-
     <script>
-        // Function to format the user's name
         function formatUserName(name) {
-            // Split the name into an array of words
             var words = name.toLowerCase().split(' ');
-            // Capitalize the first letter of each word
             for (var i = 0; i < words.length; i++) {
                 words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
             }
-            // Join the words back into a single string and return
             return words.join(' ');
         }
 
-        // Function to fetch user information from the server
         function fetchUserInfo() {
-            // Make an AJAX request to fetch user information
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', './php/get_user_info.php', true); // Assuming your PHP file to retrieve user info is named get_user_info.php
-            xhr.onreadystatechange = function () {
+            xhr.open('GET', './php/get_user_info.php', true);
+            xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var userInfo = JSON.parse(xhr.responseText);
-                    // Format the user's name
                     var formattedName = formatUserName(userInfo.name);
-                    // Update the HTML content with the formatted name
                     document.getElementById('username').innerText = formattedName;
-                    // Create and display the avatar using the initial of the user's name
                     var avatar = document.createElement('div');
                     avatar.className = 'avatar';
-                    avatar.innerText = formattedName.charAt(0).toUpperCase(); // Display the initial of the user's name
+                    avatar.innerText = formattedName.charAt(0).toUpperCase(); 
                     document.getElementById('avatarContainer').appendChild(avatar);
                 }
             };
             xhr.send();
         }
 
-        // Call the function when the page loads
         window.onload = fetchUserInfo;
     </script>
 
